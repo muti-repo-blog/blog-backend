@@ -2,9 +2,11 @@ import 'dotenv/config';
 import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { routeOne } from "./routes/routeOne.js";
-import { routeTwo } from "./routes/routeTwo.js";
-import { routeThree } from "./routes/routeThree.js";
+import { authRouter } from "./routes/authRouter.js";
+import { indexRouter } from "./routes/indexRouter.js";
+import { postsRouter } from './routes/postsRouter.js';
+import { authApp } from './lib/auth.js';
+import passport from 'passport';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -15,10 +17,13 @@ app.set("view engine", "ejs");
 const assetsPath = path.join(__dirname, "public");
 app.use(express.static(assetsPath));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-app.use("/", routeOne);
-app.use("/two", routeTwo);
-app.use("/three", routeThree);
+app.use(authApp)
+
+app.use("/", indexRouter);
+app.use("/auth", authRouter);
+app.use("/posts", passport.authenticate('jwt', { session: false }), postsRouter);
 app.get('/{*splat}', (req, res, next) => {
   const err = new Error(`Page not found: ${req.originalUrl}`);
   err.statusCode = 404
@@ -30,9 +35,5 @@ app.listen(PORT, (error) => {
   if (error) {
     throw error;
   }
-  console.log(`My first Express app - listening on port ${PORT}!`);
-});
-
-app.use((err, req, res, next) => {
-  res.status(err.statusCode || 500).render('error', { title: 'Error', error: err});
+  console.log(`My Express app - listening on port ${PORT}!`);
 });
