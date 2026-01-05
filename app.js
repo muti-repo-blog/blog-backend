@@ -23,17 +23,18 @@ app.use(authApp)
 
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
+
 app.use("/posts", passport.authenticate('jwt', { session: false }), postsRouter);
+
 app.get('/{*splat}', (req, res, next) => {
   const err = new Error(`Page not found: ${req.originalUrl}`);
   err.statusCode = 404
   next(err)
 });
 
-const PORT = 3000;
-app.listen(PORT, (error) => {
+app.listen(process.env.PORT, (error) => {
   if (error) {
     throw error;
   }
-  console.log(`My Express app - listening on port ${PORT}!`);
+  console.log(`My Express app - listening on port ${process.env.PORT}!`);
 });
