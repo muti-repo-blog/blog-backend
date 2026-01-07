@@ -55,10 +55,11 @@ const sendComments = async (req, res) => {
       where: { postId: Number(id) },
       include: {
         author: { select: { username: true } }
+      },
+      orderBy: {
+        createdAt: 'desc',
       }
     });
-
-
 
     if (!comments) {
       return res.status(404).json({ error: "No comments found" });
