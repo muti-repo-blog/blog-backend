@@ -6,6 +6,9 @@ async function sendFeatured(req, res) {
       createdAt: 'desc',
     },
     take: 3, // limits to 3, but will return fewer if less exist
+    where: {
+      published: true
+    },
   });
 
 
