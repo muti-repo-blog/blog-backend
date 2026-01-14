@@ -5,5 +5,7 @@ const authRouter = express.Router();
 authRouter.get("/", authController.renderIndex);
 authRouter.post('/signup', authController.signupUser)
 authRouter.post('/login', authController.loginUser)
+authRouter.post('/login/admin', authController.loginAdmin)
+
 
 export { authRouter };

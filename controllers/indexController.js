@@ -15,6 +15,18 @@ async function sendFeatured(req, res) {
   res.json({ posts: featuredPosts});
 }
 
+async function sendNumberOfUsers(req, res) {
+  try {
+  const numberOfUsers = await prisma.user.count()
+
+    res.json({ numberOfUsers });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch user count" });
+  }
+}
+
 export {
   sendFeatured,
+  sendNumberOfUsers
 }

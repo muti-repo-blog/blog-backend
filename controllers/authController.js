@@ -44,12 +44,31 @@ async function loginUser(req, res) {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
 
-  const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+  const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
+  res.json({ token });
+}
+
+async function loginAdmin(req, res) {
+  const { username, password, adminPassword } = req.body;
+
+  if (adminPassword !== process.env.ADMIN_PASSWORD) return res.status(401).json({ error: 'Invalid Admin Password' });
+
+  const user = await prisma.user.findUnique({ where: { username } });
+
+  if (!user) return res.status(401).json({ error: 'Invalid username' });
+
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) {
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+
+  const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET_KEY, { expiresIn: '1d' });
   res.json({ token });
 }
 
 export {
   loginUser,
   renderIndex,
-  signupUser
+  signupUser,
+  loginAdmin
 }
