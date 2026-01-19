@@ -12,12 +12,12 @@ async function sendFeatured(req, res) {
   });
 
 
-  res.json({ posts: featuredPosts});
+  res.json({ posts: featuredPosts });
 }
 
 async function sendNumberOfUsers(req, res) {
   try {
-  const numberOfUsers = await prisma.user.count()
+    const numberOfUsers = await prisma.user.count()
 
     res.json({ numberOfUsers });
   } catch (err) {
@@ -26,7 +26,50 @@ async function sendNumberOfUsers(req, res) {
   }
 }
 
+async function sendUsers(req, res) {
+  const page = Math.max(parseInt(req.query.page) || 1, 1);
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
+  try {
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        skip,
+        take: limit,
+      }),
+      prisma.user.count()
+    ])
+
+    res.json({
+      users,
+      page,
+      totalPages: Math.ceil(total / limit),
+      totalUsers: total,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+}
+
+async function deleteUser(req, res) {
+  const userId = parseInt(req.params.id);
+
+  try {
+    await prisma.user.delete({
+      where: { id: userId },
+    })
+
+    res.status(200).json({ error: "Deleted User" })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: "Failed to delete user" })
+  }
+}
+
 export {
   sendFeatured,
-  sendNumberOfUsers
+  sendNumberOfUsers,
+  sendUsers,
+  deleteUser,
 }
